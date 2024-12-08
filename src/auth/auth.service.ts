@@ -32,7 +32,7 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
-  public async register(
+  public async signup(
     email: string,
     name: string,
     password: string,
@@ -75,7 +75,7 @@ export class AuthService {
     });
 
     if (!user) {
-      return this.register(
+      return this.signup(
         userInfo.email,
         userInfo.name,
         generate(),

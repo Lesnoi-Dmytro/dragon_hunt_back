@@ -12,9 +12,9 @@ export class AuthController {
     return this.authService.signin(credentials.username, credentials.password);
   }
 
-  @Post('/register')
+  @Post('/signup')
   public async register(@Body() registerRequest: RegisterRequest) {
-    return this.authService.register(
+    return this.authService.signup(
       registerRequest.email,
       registerRequest.name,
       registerRequest.password,
