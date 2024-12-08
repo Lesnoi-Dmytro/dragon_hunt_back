@@ -14,9 +14,9 @@ export class UsersService {
   ) {
     const where: Prisma.UserWhereInput = {};
     if (name) {
-      where.name.search = name;
+      where.name = { contains: name };
     } else if (email) {
-      where.email.search = email;
+      where.email = { contains: email };
     }
 
     return await this.prismaService.user.findMany({
