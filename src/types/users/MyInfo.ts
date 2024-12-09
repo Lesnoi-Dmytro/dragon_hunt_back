@@ -1,4 +1,4 @@
-export interface MyInfo extends EnergyInfo {
+export interface MyInfo extends EnergyInfoResponse {
   level: number;
   gold: number;
   exp: number;
@@ -6,7 +6,11 @@ export interface MyInfo extends EnergyInfo {
   unreadMails: number;
 }
 
-export interface EnergyInfo {
+export interface EnergyInfoResponse {
   energy: number;
   recoverAt: Date;
+}
+
+export interface EnergyInfo extends EnergyInfoResponse {
+  recoverStart: Date;
 }
