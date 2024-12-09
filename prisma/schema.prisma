@@ -8,9 +8,29 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String   @unique
-  password  String
-  image     String?
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  name          String   @unique
+  password      String
+  image         String?
+  gold          Int      @default(100)
+  energy        Int      @default(5)
+  recoverAt     DateTime @default(now())
+  battlePoints  Int      @default(100)
+  createdAt     DateTime @default(now())
+  characters    Character[]
+}
+
+enum CharacterClass {
+  WARRIOR
+  MAGE
+  ROUGE
+}
+
+model Character {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation(fields: [userId], references: [id])
+  class         CharacterClass
+  exp           Int      @default(0)
 }

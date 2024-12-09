@@ -1,18 +1,18 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { CharacterClass, User } from '@prisma/client';
 import axios from 'axios';
-import GoogleResponse from './types/googleResponse.type';
 import { generate } from 'generate-password';
-import AuthResponse from './types/authResponse.type';
 import { comparePassword, hashPassword } from 'src/utils/auth/passwordEncoder';
+import AuthResponse from 'src/types/auth/authResponse.type';
+import GoogleResponse from 'src/types/auth/googleResponse.type';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
   ) {}
 
   public async signin(
@@ -48,8 +48,30 @@ export class AuthService {
         image,
       },
     });
+    await this.createCharacters(user.id);
 
     return this.generateAuthResponse(user);
+  }
+
+  public async createCharacters(userId: number) {
+    await this.prisma.character.create({
+      data: {
+        userId,
+        class: CharacterClass.WARRIOR,
+      },
+    });
+    await this.prisma.character.create({
+      data: {
+        userId,
+        class: CharacterClass.MAGE,
+      },
+    });
+    await this.prisma.character.create({
+      data: {
+        userId,
+        class: CharacterClass.ROUGE,
+      },
+    });
   }
 
   public async authWithGoogle(access_token: string): Promise<AuthResponse> {

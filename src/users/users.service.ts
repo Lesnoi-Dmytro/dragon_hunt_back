@@ -4,7 +4,7 @@ import { PrismaService } from 'src/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   public async getAllUsers(
     page: number = 1,
@@ -19,7 +19,7 @@ export class UsersService {
       where.email = { contains: email };
     }
 
-    return await this.prismaService.user.findMany({
+    return await this.prisma.user.findMany({
       select: { password: false },
       where,
       skip: (page - 1) * limit,
@@ -28,7 +28,7 @@ export class UsersService {
   }
 
   public async getUsersByEmail(email: string) {
-    return await this.prismaService.user.findFirst({
+    return await this.prisma.user.findFirst({
       where: {
         email,
       },
@@ -36,7 +36,7 @@ export class UsersService {
   }
 
   public async getUsersByName(name: string) {
-    return await this.prismaService.user.findFirst({
+    return await this.prisma.user.findFirst({
       where: {
         name,
       },

@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import Credentials from './types/credentials.type';
 import { AuthService } from './auth.service';
-import RegisterRequest from './types/register.type';
+import RegisterRequest from 'src/types/auth/register.type';
+import Credentials from 'src/types/auth/credentials.type';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('/signin')
   public async signin(@Body() credentials: Credentials) {
