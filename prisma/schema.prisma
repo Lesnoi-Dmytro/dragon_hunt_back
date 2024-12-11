@@ -8,19 +8,52 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
-  name          String   @unique
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  name          String    @unique
   password      String
   image         String?
-  level         Int      @default(1)
-  exp           Int      @default(0)
-  gold          Int      @default(100)
-  energy        Int      @default(5)
-  recoverStart  DateTime @default(now())
-  battlePoints  Int      @default(100)
-  createdAt     DateTime @default(now())
+  level         Int       @default(1)
+  exp           Int       @default(0)
+  gold          Int       @default(100)
+  energy        Int       @default(5)
+  recoverStart  DateTime  @default(now())
+  battlePoints  Int       @default(100)
+  createdAt     DateTime  @default(now())
   characters    Character[]
+}
+
+model EntityImage {
+  id            Int       @id @default(autoincrement())
+  image         String
+
+  EntityInfo    EntityInfo[]
+}
+
+model EntityInfo {
+  id            Int       @id @default(autoincrement())
+  name          String
+
+  imageId       Int
+  image         EntityImage     @relation(fields: [imageId], references: [id])
+
+  entityId      Int?      @unique
+  entity        Entity?   @relation(fields: [entityId], references: [id])
+  
+  character     Character?
+  enemy         Enemy?
+  combatEntities CombatEntity[]
+}
+
+model Entity {
+  id            Int       @id @default(autoincrement())
+  level         Int       @default(1)
+  hp            Int
+  defence       Int
+  attack        Int
+  speed         Int
+
+  entityInfo    EntityInfo?
 }
 
 enum CharacterClass {
@@ -30,14 +63,78 @@ enum CharacterClass {
 }
 
 model Character {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   userId        Int
-  user          User     @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id])
   class         CharacterClass
-  level         Int      @default(1)
-  exp           Int      @default(0)
+  exp           Int       @default(0)
+
+  entityInfoId  Int?      @unique
+  entityInfo    EntityInfo? @relation(fields: [entityInfoId], references: [id])
 }
 
-model Battlefield {
+model Enemy {
+  id            Int       @id
+  gold          Int
+  exp           Int
+  value         Int
+
+  entityInfoId  Int       @unique
+  entityInfo    EntityInfo @relation(fields: [entityInfoId], references: [id])
+
+  battles       BattleOpponent[]
+}
+
+enum BattleType {
+  ITEMS
+  RESOURCES
+}
+
+model Battle {
   id            Int      @id @default(autoincrement())
+  name          String
+  level         Int
+  value         Int
+  type          BattleType
+  opponents     BattleOpponent[]
+}
+
+model BattleOpponent {
+  battleId      Int 
+  enemyId       Int
+
+  battle        Battle   @relation(fields: [battleId], references: [id])
+  enemy         Enemy    @relation(fields: [enemyId], references: [id])
+
+  @@id([battleId, enemyId])
+}
+
+model Combat {
+  id            Int      @id @default(autoincrement())
+  starterAt     DateTime @default(now())
+  round         Int
+  lastTurn      DateTime @default(now())
+
+  entities      CombatEntity[]
+}
+
+model CombatEntity {
+  id            Int      @id @default(autoincrement())
+
+  level         Int
+  hp            Int
+  defence       Int
+  attack        Int
+  speed         Int
+
+  currentHp     Int
+  x             Int
+  y             Int
+  tookTurn      Boolean  @default(false)
+
+  entiryInfoId  Int
+  entityInfo    EntityInfo @relation(fields: [entiryInfoId], references: [id])
+
+  combatId      Int
+  combat        Combat   @relation(fields: [combatId], references: [id])
 }

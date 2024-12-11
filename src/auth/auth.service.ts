@@ -2,17 +2,20 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { CharacterClass, User } from '@prisma/client';
-import axios from 'axios';
 import { generate } from 'generate-password';
 import { comparePassword, hashPassword } from 'src/utils/auth/passwordEncoder';
 import AuthResponse from 'src/types/auth/authResponse.type';
 import GoogleResponse from 'src/types/auth/googleResponse.type';
+import { GoogleService } from 'src/google.service';
+import axios from 'axios';
+import { console } from 'inspector';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly googleService: GoogleService,
   ) {}
 
   public async signin(
@@ -56,20 +59,40 @@ export class AuthService {
   public async createCharacters(userId: number) {
     await this.prisma.character.create({
       data: {
-        userId,
+        user: { connect: { id: userId } },
         class: CharacterClass.WARRIOR,
+        entityInfo: {
+          create: {
+            name: 'Ironfist',
+            imageId: 1,
+          },
+        },
       },
     });
+
     await this.prisma.character.create({
       data: {
-        userId,
+        user: { connect: { id: userId } },
         class: CharacterClass.MAGE,
+        entityInfo: {
+          create: {
+            name: 'Starbinder',
+            imageId: 2,
+          },
+        },
       },
     });
+
     await this.prisma.character.create({
       data: {
-        userId,
+        user: { connect: { id: userId } },
         class: CharacterClass.ROUGE,
+        entityInfo: {
+          create: {
+            name: 'Nightshade',
+            imageId: 3,
+          },
+        },
       },
     });
   }
@@ -77,14 +100,7 @@ export class AuthService {
   public async authWithGoogle(access_token: string): Promise<AuthResponse> {
     let userInfo: GoogleResponse;
     try {
-      userInfo = (
-        await axios.get<GoogleResponse>(
-          'https://www.googleapis.com/oauth2/v3/userinfo',
-          {
-            headers: { Authorization: 'Bearer ' + access_token },
-          },
-        )
-      ).data;
+      userInfo = await this.googleService.getUserData(access_token);
     } catch (err) {
       console.log(err);
       throw new ForbiddenException("Can't get user's Google profile");
@@ -97,12 +113,16 @@ export class AuthService {
     });
 
     if (!user) {
-      return this.signup(
-        userInfo.email,
-        userInfo.name,
-        generate(),
-        userInfo.picture,
+      const userImageResponse = await axios.get(userInfo.picture, {
+        responseType: 'arraybuffer',
+      });
+      const imageType = userImageResponse.headers['content-type'].split('/')[1];
+      const image = await this.googleService.uploadFile(
+        userImageResponse.data,
+        `${userInfo.email}_${new Date().getTime()}.${imageType}`,
       );
+
+      return this.signup(userInfo.email, userInfo.name, generate(), image);
     }
 
     return this.generateAuthResponse(user);
@@ -113,7 +133,6 @@ export class AuthService {
       id: String(user.id),
       email: user.email,
       name: user.name,
-      image: user.image,
       token: await this.generateToken(user),
     };
   }

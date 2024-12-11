@@ -1,10 +1,14 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Public } from 'src/auth/auth.guard';
+import { GoogleService } from 'src/google.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly userService: UsersService) {}
+  constructor(
+    private readonly userService: UsersService,
+    private readonly googleService: GoogleService,
+  ) {}
 
   @Get('/')
   public getUsers(

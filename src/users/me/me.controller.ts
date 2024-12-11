@@ -1,4 +1,4 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Post, Res } from '@nestjs/common';
 import { MeService } from './me.service';
 import { CurrentUser } from 'src/auth/auth.guard';
 
@@ -9,6 +9,18 @@ export class MeController {
   @Get()
   public async getMyInfo(@CurrentUser('sub') id: number) {
     return this.meService.getMyInfo(id);
+  }
+
+  @Get('/image')
+  public async getImage(@CurrentUser('sub') id: number, @Res() res) {
+    const image = await this.meService.getUserImage(id);
+
+    if (image.mimeType) {
+      res.set({
+        'Content-Type': image.mimeType,
+      });
+    }
+    image.file.pipe(res);
   }
 
   @Get('/energy')

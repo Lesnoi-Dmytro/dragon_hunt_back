@@ -4,10 +4,14 @@ import { EnergyInfoResponse, MyInfo } from 'src/types/users/MyInfo';
 import { getUserEnergy, MAX_ENERGY } from 'src/utils/users/userEnergy';
 import { getUserExpNeeded } from 'src/utils/users/userLevel';
 import { User } from '@prisma/client';
+import { GoogleService } from 'src/google.service';
 
 @Injectable()
 export class MeService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly googleService: GoogleService,
+  ) {}
 
   public async getMyInfo(id: number): Promise<MyInfo> {
     const user = await this.prisma.user.findFirst({
@@ -17,11 +21,6 @@ export class MeService {
         level: true,
         exp: true,
         gold: true,
-        characters: {
-          select: {
-            exp: true,
-          },
-        },
       },
       where: {
         id,
@@ -43,6 +42,23 @@ export class MeService {
       gold: user.gold,
       unreadMails: 0,
     };
+  }
+
+  public async getUserImage(id: number) {
+    const user = await this.prisma.user.findFirst({
+      select: {
+        image: true,
+      },
+      where: {
+        id,
+      },
+    });
+
+    if (!user.image) {
+      return null;
+    } else {
+      return await this.googleService.getFile(user.image);
+    }
   }
 
   public async getEnergy(id: number): Promise<EnergyInfoResponse> {
