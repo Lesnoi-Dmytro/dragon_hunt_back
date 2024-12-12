@@ -116,10 +116,9 @@ export class AuthService {
       const userImageResponse = await axios.get(userInfo.picture, {
         responseType: 'arraybuffer',
       });
-      const imageType = userImageResponse.headers['content-type'].split('/')[1];
       const image = await this.googleService.uploadFile(
         userImageResponse.data,
-        `${userInfo.email}_${new Date().getTime()}.${imageType}`,
+        `${userInfo.email}_${new Date().getTime()}`,
       );
 
       return this.signup(userInfo.email, userInfo.name, generate(), image);

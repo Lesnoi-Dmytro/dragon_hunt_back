@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
 import GoogleResponse from './types/auth/googleResponse.type';
 import axios from 'axios';
 import { Readable } from 'stream';
 import { ReadStream } from 'fs';
+import { detectFile } from 'file-type-checker';
 
 const SCOPES = ['https://www.googleapis.com/auth/drive'];
 
@@ -27,16 +28,29 @@ export class GoogleService {
     this.drive = google.drive({ version: 'v3', auth });
   }
 
-  public async uploadFile(file: string | Buffer, name: string) {
-    const readable = Readable.from(file);
+  public async uploadFile(file: Buffer, name: string) {
+    let fileType: { extension: string; mimeType: string } = detectFile(file);
 
+    if (!fileType) {
+      const bufferString = file.toString('utf8', 0, 50).trim();
+      if (
+        bufferString.startsWith('<svg') ||
+        (bufferString.startsWith('<?xml') && bufferString.includes('<svg'))
+      ) {
+        fileType = { extension: 'svg', mimeType: 'image/svg+xml' };
+      } else {
+        throw new BadRequestException('Invalid file type');
+      }
+    }
+
+    const readable = Readable.from(file);
     const uploadedFile = await this.drive.files.create({
       requestBody: {
-        name,
+        name: `${name}.${fileType.extension}`,
         parents: ['1bXNU3w1ndQ8nGxhlRq2Z-7_bP5auBcej'],
       },
       media: {
-        mimeType: 'image/png',
+        mimeType: fileType.mimeType,
         body: readable,
       },
       fields: 'id',
