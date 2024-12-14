@@ -1,9 +1,5 @@
+import { ENERGY_RECOVERY_TIME, MAX_ENERGY } from 'src/constants';
 import { EnergyInfo } from 'src/types/users/MyInfo';
-
-export const ENERGY_RECOVERY_TIME =
-  Number(process.env.ENERGY_RECOVERY_TIME) || 1000 * 60 * 5;
-
-export const MAX_ENERGY = 5;
 
 export function getUserEnergy(energy: number, recoverStart: Date): EnergyInfo {
   if (energy === MAX_ENERGY) {

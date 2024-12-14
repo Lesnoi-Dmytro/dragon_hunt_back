@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { EnergyInfoResponse, MyInfo } from 'src/types/users/MyInfo';
-import { getUserEnergy, MAX_ENERGY } from 'src/utils/users/userEnergy';
+import { getUserEnergy } from 'src/utils/users/userEnergy';
 import { getUserExpNeeded } from 'src/utils/users/userLevel';
 import { User } from '@prisma/client';
 import { GoogleService } from 'src/google.service';
+import { MAX_ENERGY } from 'src/constants';
 
 @Injectable()
 export class MeService {

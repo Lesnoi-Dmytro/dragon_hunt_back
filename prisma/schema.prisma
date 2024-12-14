@@ -20,14 +20,19 @@ model User {
   recoverStart  DateTime  @default(now())
   battlePoints  Int       @default(100)
   createdAt     DateTime  @default(now())
+
+  combatRating  Int       @default(300)
+
   characters    Character[]
 }
 
-model EntityImage {
+model Image {
   id            Int       @id @default(autoincrement())
   image         String
 
-  EntityInfo    EntityInfo[]
+  entities      EntityInfo[]  
+  weaponon      Weapon[]
+  armor         Armor[]
 }
 
 model EntityInfo {
@@ -35,31 +40,32 @@ model EntityInfo {
   name          String
 
   imageId       Int
-  image         EntityImage     @relation(fields: [imageId], references: [id])
+  image         Image     @relation(fields: [imageId], references: [id])
 
   entityId      Int?      @unique
   entity        Entity?   @relation(fields: [entityId], references: [id])
-  
-  character     Character?
-  enemy         Enemy?
-  combatEntities CombatEntity[]
+
+  combatEntities CombatEnemy[]
 }
 
 model Entity {
   id            Int       @id @default(autoincrement())
   level         Int       @default(1)
   hp            Int
-  defence       Int
+  defense       Int
   attack        Int
   speed         Int
 
   entityInfo    EntityInfo?
+
+  character     Character?
+  enemy         Enemy?
 }
 
 enum CharacterClass {
   WARRIOR
   MAGE
-  ROUGE
+  ROGUE
 }
 
 model Character {
@@ -69,32 +75,95 @@ model Character {
   class         CharacterClass
   exp           Int       @default(0)
 
-  entityInfoId  Int?      @unique
-  entityInfo    EntityInfo? @relation(fields: [entityInfoId], references: [id])
+  entityId      Int?      @unique
+  entity        Entity?   @relation(fields: [entityId], references: [id])
+
+  weaponId      Int
+  weapon        Weapon   @relation(fields: [weaponId], references: [id])
+  armorId       Int
+  armor         Armor     @relation(fields: [armorId], references: [id])
+  
+  combatEntities  CombatEntity[]
+}
+
+enum WeaponType {
+  RANGED
+  MELEE
+}
+
+model Weapon {
+  id            Int       @id
+  name          String
+  type          WeaponType
+  character     CharacterClass
+  attack        Int
+  speed         Int
+  attackRange   Int
+  
+  quality       Int
+  attackGrows   Int
+
+  actionId      Int?
+  action        WeaponAction? @relation(fields: [actionId], references: [id])
+
+  imageId       Int
+  image         Image     @relation(fields: [imageId], references: [id])
+
+  characters     Character[]
+}
+
+enum ActionTrigger {
+  IMIDIATE
+  REACTION
+  TURN_END
+  NEXT_TURN
+}
+
+model WeaponAction {
+  id            Int       @id
+  name          String
+  trigger       ActionTrigger
+
+  weapons       Weapon[]
+}
+
+model  Armor {
+  id            Int       @id
+  name          String
+  character     CharacterClass
+  defense       Int
+  speed         Int
+
+  quality       Int
+  defenseGrows  Int
+  
+  imageId       Int
+  image         Image     @relation(fields: [imageId], references: [id])
+  
+  characters     Character[]
 }
 
 model Enemy {
   id            Int       @id
+  level         Int
   gold          Int
   exp           Int
   value         Int
 
-  entityInfoId  Int       @unique
-  entityInfo    EntityInfo @relation(fields: [entityInfoId], references: [id])
+  entityId      Int       @unique
+  entity        Entity    @relation(fields: [entityId], references: [id])
 
   battles       BattleOpponent[]
 }
 
 enum BattleType {
-  ITEMS
+  EQUIPMENT
   RESOURCES
 }
 
 model Battle {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id
   name          String
-  level         Int
-  value         Int
   type          BattleType
   opponents     BattleOpponent[]
 }
@@ -103,38 +172,64 @@ model BattleOpponent {
   battleId      Int 
   enemyId       Int
 
-  battle        Battle   @relation(fields: [battleId], references: [id])
-  enemy         Enemy    @relation(fields: [enemyId], references: [id])
+  battle        Battle    @relation(fields: [battleId], references: [id])
+  enemy         Enemy     @relation(fields: [enemyId], references: [id])
 
   @@id([battleId, enemyId])
 }
 
 model Combat {
-  id            Int      @id @default(autoincrement())
-  starterAt     DateTime @default(now())
+  id            Int       @id @default(autoincrement())
   round         Int
-  lastTurn      DateTime @default(now())
+  lastTurn      DateTime  @default(now())
+  size          Int
 
   entities      CombatEntity[]
 }
 
+enum Action {
+  DASH
+  ATTACK
+  DEFEND
+  DISENGAGE
+  PREPARE
+}
+
 model CombatEntity {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
+
+  currentHp     Int
+  movement      Int
+  action        Action?
+  reaction      Boolean   @default(false)
+
+  x             Int
+  y             Int
+
+  characterId   Int?      @unique
+  character     Character? @relation(fields: [characterId], references: [id])
+
+  enemyId       Int?        @unique
+  enemy         CombatEnemy? @relation(fields: [enemyId], references: [id])
+
+  combatId      Int
+  combat        Combat    @relation(fields: [combatId], references: [id])
+}
+
+model CombatEnemy {
+  id            Int       @id @default(autoincrement())
 
   level         Int
   hp            Int
-  defence       Int
+  defense       Int
   attack        Int
   speed         Int
+  
+  gold          Int
+  exp           Int
 
-  currentHp     Int
-  x             Int
-  y             Int
-  tookTurn      Boolean  @default(false)
+  entityInfoId  Int       
+  entityInfo    EntityInfo @relation(fields: [entityInfoId], references: [id])
 
-  entiryInfoId  Int
-  entityInfo    EntityInfo @relation(fields: [entiryInfoId], references: [id])
-
-  combatId      Int
-  combat        Combat   @relation(fields: [combatId], references: [id])
+  combatEntity  CombatEntity?
 }

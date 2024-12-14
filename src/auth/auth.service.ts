@@ -56,47 +56,6 @@ export class AuthService {
     return this.generateAuthResponse(user);
   }
 
-  public async createCharacters(userId: number) {
-    await this.prisma.character.create({
-      data: {
-        user: { connect: { id: userId } },
-        class: CharacterClass.WARRIOR,
-        entityInfo: {
-          create: {
-            name: 'Ironfist',
-            imageId: 1,
-          },
-        },
-      },
-    });
-
-    await this.prisma.character.create({
-      data: {
-        user: { connect: { id: userId } },
-        class: CharacterClass.MAGE,
-        entityInfo: {
-          create: {
-            name: 'Starbinder',
-            imageId: 2,
-          },
-        },
-      },
-    });
-
-    await this.prisma.character.create({
-      data: {
-        user: { connect: { id: userId } },
-        class: CharacterClass.ROUGE,
-        entityInfo: {
-          create: {
-            name: 'Nightshade',
-            imageId: 3,
-          },
-        },
-      },
-    });
-  }
-
   public async authWithGoogle(access_token: string): Promise<AuthResponse> {
     let userInfo: GoogleResponse;
     try {
@@ -141,6 +100,104 @@ export class AuthService {
       sub: user.id,
       name: user.name,
       email: user.email,
+    });
+  }
+
+  public async createCharacters(userId: number) {
+    await this.prisma.character.create({
+      data: {
+        user: { connect: { id: userId } },
+        class: CharacterClass.WARRIOR,
+        entity: {
+          create: {
+            level: 1,
+            hp: 100,
+            defense: 15,
+            attack: 30,
+            speed: 5,
+            entityInfo: {
+              create: {
+                name: 'Ironfist',
+                imageId: 1,
+              },
+            },
+          },
+        },
+        weapon: {
+          connect: {
+            id: 1,
+          },
+        },
+        armor: {
+          connect: {
+            id: 1,
+          },
+        },
+      },
+    });
+
+    await this.prisma.character.create({
+      data: {
+        user: { connect: { id: userId } },
+        class: CharacterClass.MAGE,
+        entity: {
+          create: {
+            level: 1,
+            hp: 60,
+            defense: 5,
+            attack: 40,
+            speed: 4,
+            entityInfo: {
+              create: {
+                name: 'Starbinder',
+                imageId: 2,
+              },
+            },
+          },
+        },
+        weapon: {
+          connect: {
+            id: 2,
+          },
+        },
+        armor: {
+          connect: {
+            id: 1,
+          },
+        },
+      },
+    });
+
+    await this.prisma.character.create({
+      data: {
+        user: { connect: { id: userId } },
+        class: CharacterClass.ROGUE,
+        entity: {
+          create: {
+            level: 1,
+            hp: 60,
+            defense: 5,
+            attack: 30,
+            speed: 4,
+            entityInfo: {
+              create: {
+                name: 'Nightshade',
+                imageId: 3,
+              },
+            },
+          },
+        },
+        weapon: {
+          connect: {
+            id: 3,
+          },
+        },
+        armor: {
+          connect: {
+            id: 1,
+          },
+        },
+      },
     });
   }
 }
