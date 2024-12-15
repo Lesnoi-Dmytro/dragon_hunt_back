@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Res } from '@nestjs/common';
 import { MeService } from './me.service';
 import { CurrentUser } from 'src/auth/auth.guard';
+import { Response } from 'express';
 
 @Controller('users/me')
 export class MeController {
@@ -12,7 +13,7 @@ export class MeController {
   }
 
   @Get('/image')
-  public async getImage(@CurrentUser('sub') id: number, @Res() res) {
+  public async getImage(@CurrentUser('sub') id: number, @Res() res: Response) {
     const image = await this.meService.getUserImage(id);
 
     if (image.mimeType) {

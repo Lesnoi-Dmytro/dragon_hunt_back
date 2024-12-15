@@ -20,7 +20,7 @@ export const CurrentUser = createParamDecorator(
     const user: JWTUser = request.user;
 
     if (!user) {
-      return null;
+      throw new UnauthorizedException();
     }
     return attribute ? user?.[attribute] : user;
   },

@@ -68,9 +68,9 @@ model Entity {
 }
 
 enum CharacterClass {
-  WARRIOR                 @map("Warrior")
-  MAGE                    @map("Mage")
-  ROGUE                   @map("Rogue")
+  WARRIOR
+  MAGE
+  ROGUE
 }
 
 model Character {
@@ -92,8 +92,8 @@ model Character {
 }
 
 enum WeaponType {
-  MELEE                   @map("Melee")
-  RANGED                  @map("Ranged")
+  MELEE
+  RANGED
 }
 
 model WeaponTemplate {
@@ -133,16 +133,16 @@ model Weapon {
 }
 
 enum ActionTrigger {
-  IMIDIATE                @map("Imidiate")
-  REACTION                @map("Reaction")
-  TURN_END                @map("Turn End")
-  NEXT_TURN               @map("Next Turn")
+  IMIDIATE
+  REACTION
+  TURN_END
+  NEXT_TURN
 }
 
 enum ActionTarget {
-  ENEMY                   @map("Enemy")
-  ALLY                    @map("Ally")
-  FIELD                   @map("Field")
+  ENEMY
+  ALLY
+  FIELD
 }
 
 model WeaponAction {
@@ -201,8 +201,8 @@ model Enemy {
 }
 
 enum BattleType {
-  EQUIPMENT               @map("Equipment")
-  RESOURCES               @map("Resources")
+  EQUIPMENT
+  RESOURCES
 }
 
 model Battle {
@@ -233,11 +233,11 @@ model Combat {
 }
 
 enum Action {
-  DASH                    @map("Action")
-  ATTACK                  @map("Attack")
-  DEFEND                  @map("Defend")
-  CAREFULL_STEP           @map("Careful Step")
-  SPECIAL_ACTION          @map("Special Action")
+  DASH
+  ATTACK
+  DEFEND
+  CAREFULL_STEP
+  SPECIAL_ACTION
 }
 
 model CombatEntity {

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Public } from 'src/auth/auth.guard';
 import { GoogleService } from 'src/google.service';
@@ -12,8 +12,8 @@ export class UsersController {
 
   @Get('/')
   public getUsers(
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query('page', new ParseIntPipe()) page: number,
+    @Query('limit', new ParseIntPipe()) limit: number,
     @Query('email') email: string,
     @Query('name') name: string,
   ) {
