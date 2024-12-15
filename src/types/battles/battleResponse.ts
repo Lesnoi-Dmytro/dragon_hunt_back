@@ -3,6 +3,7 @@ export interface BattleResponse {
   name: string;
   type: string;
   level: number;
+  energy: number;
   opponents: {
     id: number;
     name: string;

@@ -30,7 +30,7 @@ export const characterImages = new Map<
     {
       data: {
         id: 3,
-        image: '122aY3rXh4q10-kJ26y1z2-Vz3J3753xM',
+        image: '1p3sdatYK56ZIDU56nH_MiCI3dSg2ElP0',
       },
       seedId: 1,
     },
@@ -129,7 +129,7 @@ export const enemyImages = new Map<string, SeedData<Image>>([
     {
       data: {
         id: 6005,
-        image: '1qu8ldwN5Nw4IGpsI878rXpiM7GQV-LDD',
+        image: '17i1fq-fi5EwL9qy1xTsFTFmdOBOjPugT',
       },
       seedId: 1,
     },
@@ -139,7 +139,7 @@ export const enemyImages = new Map<string, SeedData<Image>>([
     {
       data: {
         id: 6006,
-        image: '17i1fq-fi5EwL9qy1xTsFTFmdOBOjPugT',
+        image: '1sbRQ_DjHQ84xIVIAvbk7NjYt8mFhZB7_',
       },
       seedId: 1,
     },

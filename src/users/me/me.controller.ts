@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Res } from '@nestjs/common';
+import { Controller, Get, ParseIntPipe, Res } from '@nestjs/common';
 import { MeService } from './me.service';
 import { CurrentUser } from 'src/auth/auth.guard';
 import { Response } from 'express';
@@ -8,12 +8,15 @@ export class MeController {
   constructor(private readonly meService: MeService) {}
 
   @Get()
-  public async getMyInfo(@CurrentUser('sub') id: number) {
+  public async getMyInfo(@CurrentUser('sub', new ParseIntPipe()) id: number) {
     return this.meService.getMyInfo(id);
   }
 
   @Get('/image')
-  public async getImage(@CurrentUser('sub') id: number, @Res() res: Response) {
+  public async getImage(
+    @CurrentUser('sub', new ParseIntPipe()) id: number,
+    @Res() res: Response,
+  ) {
     const image = await this.meService.getUserImage(id);
 
     if (image.mimeType) {
@@ -25,12 +28,7 @@ export class MeController {
   }
 
   @Get('/energy')
-  public async getEnergy(@CurrentUser('sub') id: number) {
+  public async getEnergy(@CurrentUser('sub', new ParseIntPipe()) id: number) {
     return this.meService.getEnergy(id);
-  }
-
-  @Post('/spend')
-  public async spendEnergy(@CurrentUser('sub') id: number) {
-    return this.meService.spendEnergy(id, 1);
   }
 }

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { AttackType, Prisma } from '@prisma/client';
 import { enemyImages } from 'prisma/seed/data/images';
 import SeedData from 'prisma/seed/types/seedData';
 
@@ -125,6 +125,7 @@ export const enemies = new Map<string, SeedData<Prisma.EnemyCreateInput>>([
         gold: 190,
         exp: 160,
         value: 50,
+        type: AttackType.RANGED,
         entity: {
           create: {
             level: 3,
@@ -165,7 +166,7 @@ export const enemies = new Map<string, SeedData<Prisma.EnemyCreateInput>>([
               create: {
                 name: 'Bandit Leader',
                 image: {
-                  connect: { id: enemyImages.get('bandit').data.id },
+                  connect: { id: enemyImages.get('bandit_leader').data.id },
                 },
               },
             },

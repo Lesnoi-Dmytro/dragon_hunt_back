@@ -1,4 +1,4 @@
-import { CharacterClass, Prisma, WeaponType } from '@prisma/client';
+import { CharacterClass, Prisma, AttackType } from '@prisma/client';
 import { weaponImages } from 'prisma/seed/data/images';
 import { weaponActions } from 'prisma/seed/data/weaponActions';
 import SeedData from 'prisma/seed/types/seedData';
@@ -13,7 +13,7 @@ export const weaponTemplates = new Map<
       data: {
         id: 1,
         name: 'Mastercrafted Sword',
-        type: WeaponType.MELEE,
+        type: AttackType.MELEE,
         character: CharacterClass.WARRIOR,
         attack: 25,
         speed: 1,
@@ -31,11 +31,11 @@ export const weaponTemplates = new Map<
       data: {
         id: 2,
         name: 'Ruby Staff',
-        type: WeaponType.RANGED,
+        type: AttackType.RANGED,
         character: CharacterClass.MAGE,
         attack: 30,
         speed: -1,
-        attackRange: 1,
+        attackRange: 4,
         attackGrows: 1,
         action: { connect: { id: weaponActions.get('fireball').data.id } },
         image: { connect: { id: weaponImages.get('staff').data.id } },
@@ -49,11 +49,11 @@ export const weaponTemplates = new Map<
       data: {
         id: 3,
         name: 'Carved Oak Bow',
-        type: WeaponType.RANGED,
+        type: AttackType.RANGED,
         character: CharacterClass.ROGUE,
         attack: 20,
         speed: 0,
-        attackRange: 1,
+        attackRange: 6,
         attackGrows: 1,
         action: { connect: { id: weaponActions.get('preparedShot').data.id } },
         image: { connect: { id: weaponImages.get('bow').data.id } },

@@ -91,7 +91,7 @@ model Character {
   combatEntities  CombatEntity[]
 }
 
-enum WeaponType {
+enum AttackType {
   MELEE
   RANGED
 }
@@ -99,7 +99,7 @@ enum WeaponType {
 model WeaponTemplate {
   id            Int       @id
   name          String
-  type          WeaponType
+  type          AttackType
   character     CharacterClass
   attack        Int
   speed         Int
@@ -112,8 +112,6 @@ model WeaponTemplate {
 
   imageId       Int
   image         Image     @relation(fields: [imageId], references: [id])
-
-  specialActions SpecialActions[]
 
   weapons       Weapon[]
 }
@@ -129,7 +127,7 @@ model Weapon {
   templateId    Int
   template      WeaponTemplate @relation(fields: [templateId], references: [id])
 
-  characters     Character[]
+  characters    Character[]
 }
 
 enum ActionTrigger {
@@ -139,7 +137,7 @@ enum ActionTrigger {
   NEXT_TURN
 }
 
-enum ActionTarget {
+enum ActionTarget {`
   ENEMY
   ALLY
   FIELD
@@ -193,6 +191,7 @@ model Enemy {
   gold          Int
   exp           Int
   value         Int
+  type          AttackType @default(MELEE)
 
   entityId      Int       @unique
   entity        Entity    @relation(fields: [entityId], references: [id])
@@ -211,6 +210,7 @@ model Battle {
   level         Int
   type          BattleType
   opponents     BattleOpponent[]
+  combats       Combat[]
 }
 
 model BattleOpponent {
@@ -225,9 +225,12 @@ model BattleOpponent {
 
 model Combat {
   id            Int       @id @default(autoincrement())
-  round         Int
+  round         Int       @default(1)
   lastTurn      DateTime  @default(now())
   size          Int
+
+  battleId      Int?
+  battle        Battle?    @relation(fields: [battleId], references: [id])
 
   entities      CombatEntity[]
 }
@@ -263,15 +266,12 @@ model CombatEntity {
 }
 
 model SpecialActions {
+  id            Int       @id @default(autoincrement())
   combatEntityId Int
-  weaponId      Int
 
   combatEntity  CombatEntity @relation(fields: [combatEntityId], references: [id])
-  weapon        WeaponTemplate @relation(fields: [weaponId], references: [id])
 
   turn          Int
-  
-  @@id([combatEntityId, weaponId])
 }
 
 model CombatEnemy {

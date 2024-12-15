@@ -27,11 +27,11 @@ export const weaponActions = new Map<
         id: 2,
         name: 'Fireball',
         description:
-          'Preapare a Fireball. Next turn you cast it with a regular attack, dealing 200% of your damage in a radius of 3.',
+          'Preapare a Fireball. Next turn you cast it with a regular attack, dealing 200% of your damage in a radius of 2 tiles.',
         trigger: ActionTrigger.NEXT_TURN,
         target: ActionTarget.FIELD,
         range: 5,
-        spread: 3,
+        spread: 2,
       },
       seedId: 1,
     },

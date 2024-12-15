@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma.service';
 import { EnergyInfoResponse, MyInfo } from 'src/types/users/MyInfo';
 import { getUserEnergy } from 'src/utils/users/userEnergy';
 import { getUserExpNeeded } from 'src/utils/users/userLevel';
-import { User } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { GoogleService } from 'src/google.service';
 import { MAX_ENERGY } from 'src/constants';
 
@@ -76,22 +76,31 @@ export class MeService {
     return this.getUserEnergy(id, user.energy, user.recoverStart);
   }
 
-  public async spendEnergy(userId: number, spentEnergy: number) {
-    const user = await this.prisma.user.findFirst({
+  public async spendEnergy(
+    userId: number,
+    spentEnergy: number,
+    prisma: Omit<
+      PrismaClient,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    > = this.prisma,
+  ) {
+    const user = await prisma.user.findFirst({
       select: {
         energy: true,
+        recoverStart: true,
       },
       where: {
         id: userId,
       },
     });
+    const energy = getUserEnergy(user.energy, user.recoverStart).energy;
 
-    if (user.energy < spentEnergy) {
+    if (energy < spentEnergy) {
       throw new BadRequestException('Not enough energy');
     }
 
-    const data: Partial<User> = { energy: user.energy - spentEnergy };
-    if (spentEnergy > 0 && user.energy === MAX_ENERGY) {
+    const data: Partial<User> = { energy: energy - spentEnergy };
+    if (spentEnergy > 0 && energy === MAX_ENERGY) {
       data.recoverStart = new Date();
     }
 
