@@ -1,10 +1,10 @@
 import { CurrentUser } from '@/auth/auth.guard';
 import { BattlesService } from '@/battles/battles.service';
-import { CreateBattleRequest } from '@/types/battles/createBattle';
 import {
   Body,
   Controller,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -20,12 +20,17 @@ export class BattlesController {
     return this.battlesService.findAllBattles(type);
   }
 
-  @Post('/start')
+  @Post('/:id/start')
   public async startBattle(
-    @Body() body: CreateBattleRequest,
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() { difficulty }: { difficulty: string },
     @CurrentUser('sub', new ParseIntPipe()) userId: number,
   ) {
-    const combat = await this.battlesService.createBattle(body, userId);
+    const combat = await this.battlesService.createBattle(
+      id,
+      difficulty,
+      userId,
+    );
 
     return combat;
   }

@@ -1,12 +1,29 @@
 import { PrismaService } from '@/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { CombatBattlefield } from '@/types/combats/combatBattlefield';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class CombatsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCombatById(id: number) {
-    return await this.prisma.combat.findFirst({
+  async getCombatById(id: number, userId: number): Promise<CombatBattlefield> {
+    const userCombat = await this.prisma.combat.findFirst({
+      where: {
+        id,
+        entities: {
+          some: {
+            character: {
+              userId,
+            },
+          },
+        },
+      },
+    });
+    if (!userCombat) {
+      throw new UnauthorizedException('You are not in this combat');
+    }
+
+    const combat = await this.prisma.combat.findFirst({
       where: {
         id,
       },
@@ -14,7 +31,8 @@ export class CombatsService {
         id: true,
         round: true,
         lastTurn: true,
-        size: true,
+        xSize: true,
+        ySize: true,
         battle: {
           select: {
             name: true,
@@ -33,6 +51,51 @@ export class CombatsService {
             character: {
               select: {
                 id: true,
+                class: true,
+                entity: {
+                  select: {
+                    level: true,
+                    hp: true,
+                    defense: true,
+                    attack: true,
+                    speed: true,
+                    entityInfo: {
+                      select: {
+                        name: true,
+                        imageId: true,
+                      },
+                    },
+                  },
+                },
+                weapon: {
+                  select: {
+                    level: true,
+                    quality: true,
+                    attack: true,
+                    template: {
+                      select: {
+                        name: true,
+                        imageId: true,
+                        speed: true,
+                        attackRange: true,
+                      },
+                    },
+                  },
+                },
+                armor: {
+                  select: {
+                    level: true,
+                    quality: true,
+                    defense: true,
+                    template: {
+                      select: {
+                        name: true,
+                        imageId: true,
+                        speed: true,
+                      },
+                    },
+                  },
+                },
               },
             },
             enemy: {
@@ -43,11 +106,10 @@ export class CombatsService {
                 defense: true,
                 attack: true,
                 speed: true,
-                gold: true,
-                exp: true,
                 entityInfo: {
                   select: {
                     name: true,
+                    imageId: true,
                   },
                 },
               },
@@ -56,5 +118,70 @@ export class CombatsService {
         },
       },
     });
+
+    return {
+      id: combat.id,
+      round: combat.round,
+      lastTurn: combat.lastTurn,
+      xSize: combat.xSize,
+      ySize: combat.ySize,
+      name: combat.battle.name,
+      enemies: combat.entities
+        .filter((entity) => entity.character === null)
+        .map((entity) => ({
+          id: entity.id,
+          name: entity.enemy.entityInfo.name,
+          imageId: entity.enemy.entityInfo.imageId,
+          level: entity.enemy.level,
+          hp: entity.enemy.hp,
+          defense: entity.enemy.defense,
+          attack: entity.enemy.attack,
+          speed: entity.enemy.speed,
+          currentHp: entity.currentHp,
+          movement: entity.movement,
+          action: entity.action,
+          specialActions: [],
+          reaction: entity.reaction,
+          x: entity.x,
+          y: entity.y,
+        })),
+      characters: combat.entities
+        .filter((entity) => entity.character !== null)
+        .map((entity) => ({
+          id: entity.id,
+          name: entity.character.entity.entityInfo.name,
+          imageId: entity.character.entity.entityInfo.imageId,
+          class: entity.character.class,
+          level: entity.character.entity.level,
+          hp: entity.character.entity.hp,
+          defense: entity.character.entity.defense,
+          attack: entity.character.entity.attack,
+          speed: entity.character.entity.speed,
+          currentHp: entity.currentHp,
+          movement: entity.movement,
+          action: entity.action,
+          specialActions: [],
+          reaction: entity.reaction,
+          x: entity.x,
+          y: entity.y,
+          weapon: {
+            name: entity.character.weapon.template.name,
+            imageId: entity.character.weapon.template.imageId,
+            quality: entity.character.weapon.quality,
+            level: entity.character.weapon.level,
+            speed: entity.character.weapon.template.speed,
+            attack: entity.character.weapon.attack,
+            attackRange: entity.character.weapon.template.attackRange,
+          },
+          armor: {
+            name: entity.character.armor.template.name,
+            imageId: entity.character.armor.template.imageId,
+            quality: entity.character.armor.quality,
+            level: entity.character.armor.level,
+            speed: entity.character.armor.template.speed,
+            defense: entity.character.armor.defense,
+          },
+        })),
+    };
   }
 }

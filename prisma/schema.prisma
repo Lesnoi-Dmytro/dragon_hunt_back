@@ -227,7 +227,8 @@ model Combat {
   id            Int       @id @default(autoincrement())
   round         Int       @default(1)
   lastTurn      DateTime  @default(now())
-  size          Int
+  xSize          Int
+  ySize          Int
 
   battleId      Int?
   battle        Battle?    @relation(fields: [battleId], references: [id])

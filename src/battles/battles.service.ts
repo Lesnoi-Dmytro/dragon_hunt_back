@@ -1,6 +1,6 @@
+import { X_SIZE, Y_SIZE } from '@/constants';
 import { PrismaService } from '@/prisma.service';
 import { BattleResponse } from '@/types/battles/battleResponse';
-import { CreateBattleRequest } from '@/types/battles/createBattle';
 import { MeService } from '@/users/me/me.service';
 import { randomFromArray, removeRandomFromArray } from '@/utils/arrayUtils';
 import { EnemyTemplate } from '@/utils/battles/enemyTemplate';
@@ -26,15 +26,13 @@ export class BattlesService {
     return battles.map(mapBattleResponse);
   }
 
-  public async createBattle(request: CreateBattleRequest, userId: number) {
-    const { id } = request;
+  public async createBattle(
+    id: number,
+    difficultyEnum: string,
+    userId: number,
+  ) {
     const difficulty =
-      request.difficulty === 'Normal'
-        ? 1
-        : request.difficulty === 'Hard'
-          ? 1.2
-          : 1.4;
-    const size = 12;
+      difficultyEnum === 'Normal' ? 1 : difficultyEnum === 'Hard' ? 1.2 : 1.4;
 
     const combatId = await this.prisma.$transaction(async (prisma) => {
       await prisma.combat.deleteMany({
@@ -99,7 +97,8 @@ export class BattlesService {
 
       const combat = await prisma.combat.create({
         data: {
-          size,
+          xSize: X_SIZE,
+          ySize: Y_SIZE,
           battle: { connect: { id } },
           entities: { create: [] },
         },
@@ -109,7 +108,8 @@ export class BattlesService {
         battleOpponents.map((opponent) => opponent.enemy),
         combat.id,
         difficulty,
-        12,
+        X_SIZE,
+        Y_SIZE,
       );
 
       for (const enemy of enemies) {
@@ -144,7 +144,7 @@ export class BattlesService {
           },
         },
       });
-      const generatePositions = this.generatePositions(0, 0, 2, size);
+      const generatePositions = this.generatePositions(0, 0, 2, Y_SIZE);
 
       for (const character of characters) {
         const { x, y } = removeRandomFromArray(generatePositions);
@@ -172,7 +172,8 @@ export class BattlesService {
     battleOpponents: EnemyTemplate[],
     combatId: number,
     difficulty: number,
-    size: number,
+    xSize: number,
+    ySize: number,
   ): Promise<Prisma.CombatEnemyCreateInput[]> {
     const enemies: Prisma.CombatEnemyCreateInput[] = [];
     const templates: { modifier: number; template: EnemyTemplate }[] = [];
@@ -209,10 +210,10 @@ export class BattlesService {
     }
 
     const positions: { x: number; y: number }[] = this.generatePositions(
-      size - 2,
+      xSize - 2,
       0,
-      size,
-      size,
+      ySize,
+      xSize,
     );
 
     templates.forEach((template) => {

@@ -1,3 +1,4 @@
+import { CurrentUser } from '@/auth/auth.guard';
 import { CombatsService } from '@/combats/combats.service';
 import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 
@@ -5,8 +6,11 @@ import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 export class CombatsController {
   constructor(private readonly combatsService: CombatsService) {}
 
-  @Get('/:id')
-  public getCombatById(@Param('id', new ParseIntPipe()) id: number) {
-    return this.combatsService.getCombatById(id);
+  @Get('/enemies/:id')
+  public getCombatById(
+    @Param('id', new ParseIntPipe()) id: number,
+    @CurrentUser('sub') userId,
+  ) {
+    return this.combatsService.getCombatById(id, userId);
   }
 }
