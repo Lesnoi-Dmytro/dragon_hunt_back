@@ -109,8 +109,8 @@ export class AuthService {
       async (character) =>
         await this.prisma.character.create({
           data: {
-            user: { connect: { id: userId } },
             ...character,
+            user: { connect: { id: userId } },
           },
         }),
     );

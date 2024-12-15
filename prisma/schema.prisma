@@ -16,7 +16,7 @@ model User {
   level         Int       @default(1)
   exp           Int       @default(0)
   gold          Int       @default(100)
-  energy        Int       @default(5)
+  energy        Int       @default(15)
   recoverStart  DateTime  @default(now())
   battlePoints  Int       @default(100)
   createdAt     DateTime  @default(now())

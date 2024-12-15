@@ -1,7 +1,12 @@
-import { CharacterClass } from '@prisma/client';
+import { CharacterClass, Prisma } from '@prisma/client';
 
-const initialCharacters = [
+const initialCharacters: Prisma.CharacterCreateInput[] = [
   {
+    user: {
+      connect: {
+        id: 1,
+      },
+    },
     class: CharacterClass.WARRIOR,
     entity: {
       create: {
@@ -30,6 +35,11 @@ const initialCharacters = [
     },
   },
   {
+    user: {
+      connect: {
+        id: 1,
+      },
+    },
     class: CharacterClass.MAGE,
     entity: {
       create: {
@@ -58,6 +68,11 @@ const initialCharacters = [
     },
   },
   {
+    user: {
+      connect: {
+        id: 1,
+      },
+    },
     class: CharacterClass.ROGUE,
     entity: {
       create: {
