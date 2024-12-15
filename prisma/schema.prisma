@@ -48,7 +48,7 @@ model EntityInfo {
   image         Image     @relation(fields: [imageId], references: [id])
 
   entityId      Int?      @unique
-  entity        Entity?   @relation(fields: [entityId], references: [id])
+  entity        Entity?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   combatEntities CombatEnemy[]
 }
@@ -76,7 +76,7 @@ enum CharacterClass {
 model Character {
   id            Int       @id @default(autoincrement())
   userId        Int
-  user          User      @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   class         CharacterClass
   exp           Int       @default(0)
 
@@ -125,7 +125,7 @@ model Weapon {
   attack        Int
 
   templateId    Int
-  template      WeaponTemplate @relation(fields: [templateId], references: [id])
+  template      WeaponTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
   characters    Character[]
 }
@@ -183,7 +183,7 @@ model Armor {
   characters    Character[]
 
   templateId    Int
-  template      ArmorTemplate @relation(fields: [templateId], references: [id])
+  template      ArmorTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
 }
 
 model Enemy {
@@ -217,8 +217,8 @@ model BattleOpponent {
   battleId      Int 
   enemyId       Int
 
-  battle        Battle    @relation(fields: [battleId], references: [id])
-  enemy         Enemy     @relation(fields: [enemyId], references: [id])
+  battle        Battle    @relation(fields: [battleId], references: [id], onDelete: Cascade)
+  enemy         Enemy     @relation(fields: [enemyId], references: [id], onDelete: Cascade)
 
   @@id([battleId, enemyId])
 }
@@ -256,20 +256,20 @@ model CombatEntity {
   y             Int
 
   characterId   Int?      @unique
-  character     Character? @relation(fields: [characterId], references: [id])
+  character     Character? @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   enemyId       Int?      @unique
   enemy         CombatEnemy? @relation(fields: [enemyId], references: [id])
 
   combatId      Int
-  combat        Combat    @relation(fields: [combatId], references: [id])
+  combat        Combat    @relation(fields: [combatId], references: [id], onDelete: Cascade)
 }
 
 model SpecialActions {
   id            Int       @id @default(autoincrement())
   combatEntityId Int
 
-  combatEntity  CombatEntity @relation(fields: [combatEntityId], references: [id])
+  combatEntity  CombatEntity @relation(fields: [combatEntityId], references: [id], onDelete: Cascade)
 
   turn          Int
 }

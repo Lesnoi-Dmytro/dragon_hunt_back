@@ -100,6 +100,7 @@ export class BattlesService {
       const combat = await prisma.combat.create({
         data: {
           size,
+          battle: { connect: { id } },
           entities: { create: [] },
         },
       });
