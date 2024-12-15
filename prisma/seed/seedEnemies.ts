@@ -1,47 +1,53 @@
-import { Prisma } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
+import { enemies } from 'prisma/seed/data/enemies';
+import seedEntity from 'prisma/seed/seedEntity';
 
-// export async function seedEnemies(prisma: PrismaClient) {
-//   for (const enemy of enemies) {
-//     const existingEnemy = await prisma.enemy.findFirst({
-//       where: {
-//         id: enemy.id,
-//       },
-//     });
-
-//     if (!existingEnemy) {
-//       await prisma.enemy.create({
-//         data: {
-//           ...enemy,
-//         },
-//       });
-//     }
-// }
-
-export const enemies: Prisma.EnemyCreateInput[] = [
-  {
-    id: 1,
-    gold: 15,
-    exp: 10,
-    value: 10,
-    entityInfo: {
-      create: {
-        name: 'Goblin',
-        image: {
-          create: {
-            id: 1001,
-            image: '/enemies/goblin.svg',
-          },
+export default async function seedEnemies(prisma: PrismaClient) {
+  await seedEntity(
+    'enemy',
+    enemies.entries(),
+    (enemy) => enemy.id,
+    async (enemy) =>
+      await prisma.enemy.findFirst({
+        where: {
+          id: enemy.id,
         },
-        entity: {
-          create: {
-            level: 1,
-            hp: 100,
-            attack: 10,
-            defence: 10,
-            speed: 10,
-          },
+        select: {
+          id: true,
         },
-      },
+      }),
+    (enemy) => prisma.enemy.create({ data: enemy }),
+    async (enemy) => {
+      const { id, ...data } = enemy;
+      const entity = data.entity.create;
+
+      const entityData = await prisma.entity.findFirst({
+        where: {
+          enemy: { id },
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      await prisma.entityInfo.update({
+        where: {
+          entityId: entityData.id,
+        },
+        data: entity.entityInfo.create,
+      });
+      delete entity.entityInfo;
+
+      await prisma.entity.update({
+        where: { id: entityData.id },
+        data: entity,
+      });
+      delete data.entity;
+
+      return prisma.enemy.update({
+        where: { id },
+        data: data,
+      });
     },
-  },
-];
+  );
+}

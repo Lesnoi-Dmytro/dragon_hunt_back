@@ -27,12 +27,12 @@ model User {
 }
 
 model Image {
-  id            Int       @id @default(autoincrement())
+  id            Int       @id
   image         String
 
   entities      EntityInfo[]  
-  weaponon      Weapon[]
-  armor         Armor[]
+  weaponon      WeaponTemplate[]
+  armor         ArmorTemplate[]
 }
 
 model EntityInfo {
@@ -63,9 +63,9 @@ model Entity {
 }
 
 enum CharacterClass {
-  WARRIOR
-  MAGE
-  ROGUE
+  WARRIOR                 @map("Warrior")
+  MAGE                    @map("Mage")
+  ROGUE                   @map("Rogue")
 }
 
 model Character {
@@ -79,7 +79,7 @@ model Character {
   entity        Entity?   @relation(fields: [entityId], references: [id])
 
   weaponId      Int
-  weapon        Weapon   @relation(fields: [weaponId], references: [id])
+  weapon        Weapon    @relation(fields: [weaponId], references: [id])
   armorId       Int
   armor         Armor     @relation(fields: [armorId], references: [id])
   
@@ -87,11 +87,11 @@ model Character {
 }
 
 enum WeaponType {
-  RANGED
-  MELEE
+  MELEE                   @map("Melee")
+  RANGED                  @map("Ranged")
 }
 
-model Weapon {
+model WeaponTemplate {
   id            Int       @id
   name          String
   type          WeaponType
@@ -100,52 +100,91 @@ model Weapon {
   speed         Int
   attackRange   Int
   
-  quality       Int
   attackGrows   Int
 
-  actionId      Int?
-  action        WeaponAction? @relation(fields: [actionId], references: [id])
+  actionId      Int
+  action        WeaponAction @relation(fields: [actionId], references: [id])
 
   imageId       Int
   image         Image     @relation(fields: [imageId], references: [id])
+
+  specialActions SpecialActions[]
+
+  weapons       Weapon[]
+}
+
+model Weapon {
+  id            Int       @id @default(autoincrement())
+
+  level         Int
+  quality       Int
+  
+  attack        Int
+
+  templateId    Int
+  template      WeaponTemplate @relation(fields: [templateId], references: [id])
 
   characters     Character[]
 }
 
 enum ActionTrigger {
-  IMIDIATE
-  REACTION
-  TURN_END
-  NEXT_TURN
+  IMIDIATE                @map("Imidiate")
+  REACTION                @map("Reaction")
+  TURN_END                @map("Turn End")
+  NEXT_TURN               @map("Next Turn")
+}
+
+enum ActionTarget {
+  ENEMY                   @map("Enemy")
+  ALLY                    @map("Ally")
+  FIELD                   @map("Field")
 }
 
 model WeaponAction {
   id            Int       @id
   name          String
+  description   String
+  range         Int       @default(1)
+  spread        Int       @default(1)
+  duration      Int       @default(1)
+  cooldown      Int       @default(0)
   trigger       ActionTrigger
+  target        ActionTarget
 
-  weapons       Weapon[]
+  weapons       WeaponTemplate[]
 }
 
-model  Armor {
+model  ArmorTemplate {
   id            Int       @id
   name          String
   character     CharacterClass
   defense       Int
   speed         Int
 
-  quality       Int
   defenseGrows  Int
   
   imageId       Int
   image         Image     @relation(fields: [imageId], references: [id])
+
+  armors        Armor[]
+}
+
+model Armor {
+  id            Int       @id @default(autoincrement())
+
+  level         Int
+  quality       Int
   
-  characters     Character[]
+  defense       Int
+
+  characters    Character[]
+
+  templateId    Int
+  template      ArmorTemplate @relation(fields: [templateId], references: [id])
 }
 
 model Enemy {
   id            Int       @id
-  level         Int
   gold          Int
   exp           Int
   value         Int
@@ -157,13 +196,14 @@ model Enemy {
 }
 
 enum BattleType {
-  EQUIPMENT
-  RESOURCES
+  EQUIPMENT               @map("Equipment")
+  RESOURCES               @map("Resources")
 }
 
 model Battle {
   id            Int       @id
   name          String
+  level         Int
   type          BattleType
   opponents     BattleOpponent[]
 }
@@ -188,11 +228,11 @@ model Combat {
 }
 
 enum Action {
-  DASH
-  ATTACK
-  DEFEND
-  DISENGAGE
-  PREPARE
+  DASH                    @map("Action")
+  ATTACK                  @map("Attack")
+  DEFEND                  @map("Defend")
+  CAREFULL_STEP           @map("Careful Step")
+  SPECIAL_ACTION          @map("Special Action")
 }
 
 model CombatEntity {
@@ -201,6 +241,7 @@ model CombatEntity {
   currentHp     Int
   movement      Int
   action        Action?
+  specialActions SpecialActions[]
   reaction      Boolean   @default(false)
 
   x             Int
@@ -209,11 +250,23 @@ model CombatEntity {
   characterId   Int?      @unique
   character     Character? @relation(fields: [characterId], references: [id])
 
-  enemyId       Int?        @unique
+  enemyId       Int?      @unique
   enemy         CombatEnemy? @relation(fields: [enemyId], references: [id])
 
   combatId      Int
   combat        Combat    @relation(fields: [combatId], references: [id])
+}
+
+model SpecialActions {
+  combatEntityId Int
+  weaponId      Int
+
+  combatEntity  CombatEntity @relation(fields: [combatEntityId], references: [id])
+  weapon        WeaponTemplate @relation(fields: [weaponId], references: [id])
+
+  turn          Int
+  
+  @@id([combatEntityId, weaponId])
 }
 
 model CombatEnemy {
