@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { weapons, weaponTemplates } from 'prisma/seed/data/weapons';
 import seedEntity from 'prisma/seed/seedEntity';
 
-export default async function seedWeapon(prisma: PrismaClient) {
+export default async function seedWeapon(prisma: PrismaClient, lastSeedId) {
   await seedEntity(
     'weaponTemplate',
     weaponTemplates,
@@ -20,6 +20,7 @@ export default async function seedWeapon(prisma: PrismaClient) {
         data: weapon,
       });
     },
+    lastSeedId,
   );
 
   await seedEntity(
@@ -39,5 +40,6 @@ export default async function seedWeapon(prisma: PrismaClient) {
         data: weapon,
       });
     },
+    lastSeedId,
   );
 }

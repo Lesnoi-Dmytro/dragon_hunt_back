@@ -2,7 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import { armors, armorTemplates } from 'prisma/seed/data/armors';
 import seedEntity from 'prisma/seed/seedEntity';
 
-export default async function seedArmor(prisma: PrismaClient) {
+export default async function seedArmor(
+  prisma: PrismaClient,
+  lastSeedId: number,
+) {
   await seedEntity(
     'armorTemplate',
     armorTemplates,
@@ -20,6 +23,7 @@ export default async function seedArmor(prisma: PrismaClient) {
         data: armor,
       });
     },
+    lastSeedId,
   );
 
   await seedEntity(
@@ -39,5 +43,6 @@ export default async function seedArmor(prisma: PrismaClient) {
         data: armor,
       });
     },
+    lastSeedId,
   );
 }

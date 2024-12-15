@@ -1,4 +1,3 @@
-import { SEED_ID } from 'prisma/seed';
 import SeedData from 'prisma/seed/types/seedData';
 
 export default async function seedEntity<Model, CreateInput>(
@@ -8,6 +7,7 @@ export default async function seedEntity<Model, CreateInput>(
   findExisting: (data: CreateInput) => Promise<Model>,
   create: (data: CreateInput) => Promise<Model>,
   update: (data: CreateInput) => Promise<Model>,
+  lastSeedId: number,
 ) {
   console.log(`Seeding ${name} table...`);
 
@@ -23,7 +23,7 @@ export default async function seedEntity<Model, CreateInput>(
       if (!existing) {
         await create(data);
         console.log(`${dataTag} - ${entryName}: ${name} created`);
-      } else if (seedId > SEED_ID) {
+      } else if (seedId > lastSeedId) {
         await update(data);
         console.log(`${dataTag} - ${entryName}: ${name} updated`);
       } else {

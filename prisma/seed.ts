@@ -12,15 +12,40 @@ const prisma = new PrismaClient();
 export const SEED_ID = 1;
 
 async function main() {
-  console.log('Starting seeding...\n');
+  console.log('\nCurrent seed id:', SEED_ID);
+  console.log('Checking last db seed id...');
 
-  await addapt(prisma);
-  await seedImages(prisma);
-  await seedWeaponActions(prisma);
-  await seedWeapon(prisma);
-  await seedArmor(prisma);
-  await seedEnemies(prisma);
-  await seedBattles(prisma);
+  const lastSeedId =
+    (
+      await prisma.dBSeed.aggregate({
+        _max: {
+          id: true,
+        },
+      })
+    )._max.id || 0;
+
+  console.log('Last db seed id:', lastSeedId);
+
+  if (lastSeedId === SEED_ID) {
+    console.log('DB is up to date');
+    return;
+  } else {
+    console.log('\nStarting seeding...\n');
+  }
+
+  await addapt(prisma, lastSeedId);
+  await seedImages(prisma, lastSeedId);
+  await seedWeaponActions(prisma, lastSeedId);
+  await seedWeapon(prisma, lastSeedId);
+  await seedArmor(prisma, lastSeedId);
+  await seedEnemies(prisma, lastSeedId);
+  await seedBattles(prisma, lastSeedId);
+
+  await prisma.dBSeed.create({
+    data: {
+      id: SEED_ID,
+    },
+  });
 
   console.log('Seed succesfully completed.');
 }

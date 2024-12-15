@@ -7,7 +7,10 @@ import {
 } from 'prisma/seed/data/images';
 import seedEntity from 'prisma/seed/seedEntity';
 
-export default async function seedImages(prisma: PrismaClient) {
+export default async function seedImages(
+  prisma: PrismaClient,
+  lastSeedId: number,
+) {
   await seedEntity(
     'image',
     [
@@ -32,5 +35,6 @@ export default async function seedImages(prisma: PrismaClient) {
         data: data,
       });
     },
+    lastSeedId,
   );
 }
