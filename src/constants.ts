@@ -7,5 +7,5 @@ export const ENERGY_RECOVERY_TIME =
 
 export const MAX_ENERGY = 15;
 
-export const X_SIZE = 10;
-export const Y_SIZE = 16;
+export const X_SIZE = 16;
+export const Y_SIZE = 10;

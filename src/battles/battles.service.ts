@@ -212,8 +212,8 @@ export class BattlesService {
     const positions: { x: number; y: number }[] = this.generatePositions(
       xSize - 2,
       0,
-      ySize,
       xSize,
+      ySize,
     );
 
     templates.forEach((template) => {
@@ -282,9 +282,9 @@ export class BattlesService {
         },
       },
 
-      entityInfo: {
+      enemy: {
         connect: {
-          id: template.entity.entityInfo.entityId,
+          id: template.id,
         },
       },
     };

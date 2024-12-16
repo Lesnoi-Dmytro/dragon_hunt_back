@@ -49,8 +49,6 @@ model EntityInfo {
 
   entityId      Int?      @unique
   entity        Entity?   @relation(fields: [entityId], references: [id], onDelete: Cascade)
-
-  combatEntities CombatEnemy[]
 }
 
 model Entity {
@@ -192,11 +190,13 @@ model Enemy {
   exp           Int
   value         Int
   type          AttackType @default(MELEE)
+  attackRange   Int       @default(1)
 
   entityId      Int       @unique
   entity        Entity    @relation(fields: [entityId], references: [id])
 
   battles       BattleOpponent[]
+  combatEntities CombatEnemy[]
 }
 
 enum BattleType {
@@ -287,8 +287,8 @@ model CombatEnemy {
   gold          Int
   exp           Int
 
-  entityInfoId  Int       
-  entityInfo    EntityInfo @relation(fields: [entityInfoId], references: [id])
+  enemyId       Int       
+  enemy         Enemy     @relation(fields: [enemyId], references: [id])
 
   combatEntity  CombatEntity?
 }

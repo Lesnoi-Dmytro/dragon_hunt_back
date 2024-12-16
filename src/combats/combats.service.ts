@@ -1,6 +1,6 @@
 import { PrismaService } from '@/prisma.service';
 import { CombatBattlefield } from '@/types/combats/combatBattlefield';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CombatsService {
@@ -20,7 +20,7 @@ export class CombatsService {
       },
     });
     if (!userCombat) {
-      throw new UnauthorizedException('You are not in this combat');
+      throw new ForbiddenException('You are not in this combat');
     }
 
     const combat = await this.prisma.combat.findFirst({
@@ -78,6 +78,7 @@ export class CombatsService {
                         imageId: true,
                         speed: true,
                         attackRange: true,
+                        type: true,
                       },
                     },
                   },
@@ -106,10 +107,19 @@ export class CombatsService {
                 defense: true,
                 attack: true,
                 speed: true,
-                entityInfo: {
+                enemy: {
                   select: {
-                    name: true,
-                    imageId: true,
+                    type: true,
+                    entity: {
+                      select: {
+                        entityInfo: {
+                          select: {
+                            name: true,
+                            imageId: true,
+                          },
+                        },
+                      },
+                    },
                   },
                 },
               },
@@ -130,8 +140,9 @@ export class CombatsService {
         .filter((entity) => entity.character === null)
         .map((entity) => ({
           id: entity.id,
-          name: entity.enemy.entityInfo.name,
-          imageId: entity.enemy.entityInfo.imageId,
+          name: entity.enemy.enemy.entity.entityInfo.name,
+          imageId: entity.enemy.enemy.entity.entityInfo.imageId,
+          type: entity.enemy.enemy.type,
           level: entity.enemy.level,
           hp: entity.enemy.hp,
           defense: entity.enemy.defense,
@@ -172,6 +183,7 @@ export class CombatsService {
             speed: entity.character.weapon.template.speed,
             attack: entity.character.weapon.attack,
             attackRange: entity.character.weapon.template.attackRange,
+            type: entity.character.weapon.template.type,
           },
           armor: {
             name: entity.character.armor.template.name,

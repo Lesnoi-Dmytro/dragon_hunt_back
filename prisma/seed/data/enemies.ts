@@ -126,6 +126,7 @@ export const enemies = new Map<string, SeedData<Prisma.EnemyCreateInput>>([
         exp: 160,
         value: 50,
         type: AttackType.RANGED,
+        attackRange: 7,
         entity: {
           create: {
             level: 3,

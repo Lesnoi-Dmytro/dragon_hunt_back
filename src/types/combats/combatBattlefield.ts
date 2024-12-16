@@ -1,4 +1,4 @@
-import { Action, CharacterClass } from '@prisma/client';
+import { Action, AttackType, CharacterClass } from '@prisma/client';
 
 export interface CombatBattlefield {
   id: number;
@@ -11,7 +11,9 @@ export interface CombatBattlefield {
   characters: CombatBattlefieldCharacter[];
 }
 
-export interface CombatBattlefieldEnemy extends CombatBattlefieldEntity {}
+export interface CombatBattlefieldEnemy extends CombatBattlefieldEntity {
+  type: AttackType;
+}
 
 export interface CombatBattlefieldCharacter extends CombatBattlefieldEntity {
   class: CharacterClass;
@@ -23,6 +25,7 @@ export interface CombatBattlefieldCharacter extends CombatBattlefieldEntity {
     speed: number;
     attack: number;
     attackRange: number;
+    type: AttackType;
   };
   armor: {
     name: string;
